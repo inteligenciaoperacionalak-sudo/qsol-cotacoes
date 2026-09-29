@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cotação de preços</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#1B2A24; --papel:#F5F6F2; --branco:#FFFFFF;
+  --verde:#1E7A4C; --verde-escuro:#155C39;
+  --linha:#D8DDD4; --cinza:#68716B; --verm:#B5432E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Archivo',system-ui,sans-serif;background:var(--papel);color:var(--tinta);font-size:16px;line-height:1.45}
+header{background:var(--tinta);color:#fff;padding:16px 18px}
+header .quem{font-size:13px;color:#B8C4BC;font-weight:500}
+header h1{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-top:2px}
+main{max-width:560px;margin:0 auto;padding:18px 14px 110px}
+p.intro{font-size:14px;color:var(--cinza);margin-bottom:14px}
+label{display:block;font-size:13px;font-weight:600;color:var(--cinza);margin:14px 0 5px}
+input,textarea{width:100%;font-family:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--linha);border-radius:8px;background:var(--branco);color:var(--tinta)}
+input:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--verde);outline-offset:1px}
+textarea{min-height:70px;resize:vertical}
+.item{background:var(--branco);border:1px solid var(--linha);border-radius:10px;padding:14px;margin:12px 0}
+.item h2{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.grade .cheio{grid-column:1 / -1}
+.naotem{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--cinza);margin-top:12px}
+.naotem input{width:18px;height:18px}
+.item.off input[type=text]{opacity:.4}
+.rodape{position:fixed;left:0;right:0;bottom:0;background:var(--branco);border-top:1px solid var(--linha);padding:12px 14px}
+.rodape .dentro{max-width:560px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.rodape button{flex:1;font-family:inherit;font-size:17px;font-weight:700;background:var(--verde);color:#fff;border:none;border-radius:9px;padding:14px;cursor:pointer}
+.rodape button:disabled{opacity:.6}
+.erro{color:var(--verm);font-size:14px;margin-top:10px}
+.fim{max-width:420px;margin:80px auto;text-align:center;padding:0 20px}
+.fim .ok{width:58px;height:58px;border-radius:50%;background:var(--verde);color:#fff;font-size:30px;line-height:58px;margin:0 auto 16px}
+.fim h1{font-size:22px;font-weight:800}
+.fim p{font-size:15px;color:var(--cinza);margin-top:8px}
+.aviso-edit{font-size:13px;color:var(--cinza);background:#EEF2EC;border-radius:8px;padding:10px 12px;margin-bottom:6px}
+</style>
+</head>
+<body>
+<header><div class="quem" id="quem">Pedido de cotação</div><h1 id="tit">Carregando…</h1></header>
+<main id="app"></main>
+<div class="rodape" id="rodape" style="display:none"><div class="dentro"><button id="enviar">Enviar cotação</button></div></div>
+<script>
+var BASE = 'https://eklguenkzbzkhwdvuogx.supabase.co/functions/v1/app';
+var TOKEN = new URLSearchParams(location.search).get('t') || '';
+var app = document.getElementById('app');
+var DADOS = null;
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function parsePreco(t){
+  t = String(t || '').replace(/[R$ ]/g, '');
+  if (!t) return null;
+  if (t.indexOf(',') >= 0) { t = t.split('.').join('').replace(',', '.'); }
+  var v = parseFloat(t);
+  return isNaN(v) ? null : v;
+}
+
+fetch(BASE + '/api/f/' + TOKEN).then(function(r){ return r.json(); }).then(function(d){
+  if (d.erro) { telaFim('!', 'Link inválido', d.erro); return; }
+  DADOS = d;
+  document.getElementById('quem').textContent = 'Pedido de cotação' + (d.empresa ? ' — ' + d.empresa : '');
+  document.getElementById('tit').textContent = d.titulo;
+  if (d.status !== 'aberta') { telaFim('&#10005;', 'Cotação encerrada', 'Esta cotação já foi fechada pelo comprador. Obrigado!'); return; }
+  montar(d);
+}).catch(function(){ telaFim('!', 'Erro de conexão', 'Não consegui carregar a cotação. Verifique sua internet e recarregue a página.'); });
+
+function montar(d){
+  var ant = d.anterior;
+  var h = '<p class="intro">Preencha seu preço para cada item abaixo. Se não trabalhar com algum, é só marcar &ldquo;não tenho este item&rdquo;.</p>';
+  if (ant) h += '<div class="aviso-edit">Você já enviou esta cotação. Pode ajustar os valores e enviar de novo — a resposta anterior será substituída.</div>';
+  h += '<label>Seu nome ou empresa</label><input type="text" id="f-nome" value="' + esc(d.fornecedor || (ant ? ant.fornecedor : '')) + '" placeholder="ex.: Distribuidora Sol">';
+  for (var i = 0; i < d.itens.length; i++) {
+    var it = d.itens[i];
+    var pv = {preco:'', prazo:'', qtd:'', off:false};
+    if (ant) {
+      for (var j = 0; j < ant.itens.length; j++) if (ant.itens[j].item_id === it.id) {
+        var a = ant.itens[j];
+        pv.preco = a.preco_unitario != null ? String(a.preco_unitario).replace('.', ',') : '';
+        pv.prazo = a.prazo_entrega || ''; pv.qtd = a.qtd_minima || '';
+        pv.off = a.preco_unitario == null && a.obs === 'não tenho este item';
+      }
+    }
+    h += '<div class="item' + (pv.off ? ' off' : '') + '" data-item="' + it.id + '">'
+      + '<h2>' + esc(it.nome) + '</h2><div class="grade">'
+      + '<div><label>Preço unitário (R$)</label><input type="text" inputmode="decimal" class="f-preco" placeholder="0,00" value="' + esc(pv.preco) + '"' + (pv.off ? ' disabled' : '') + '></div>'
+      + '<div><label>Prazo de entrega</label><input type="text" class="f-prazo" placeholder="ex.: 24h, 2 dias" value="' + esc(pv.prazo) + '"' + (pv.off ? ' disabled' : '') + '></div>'
+      + '<div class="cheio"><label>Quantidade mínima (se tiver)</label><input type="text" class="f-qtd" placeholder="ex.: 5 caixas" value="' + esc(pv.qtd) + '"' + (pv.off ? ' disabled' : '') + '></div>'
+      + '</div><label class="naotem"><input type="checkbox" class="f-off"' + (pv.off ? ' checked' : '') + '> Não tenho este item</label></div>';
+  }
+  h += '<label>Condição de pagamento</label><input type="text" id="f-pag" placeholder="ex.: boleto 28 dias, à vista com 3% desc." value="' + esc(ant ? (ant.condicao_pagamento || '') : '') + '">'
+    + '<label>Observações (opcional)</label><textarea id="f-obs" placeholder="ex.: entrega grátis acima de R$ 500">' + esc(ant ? (ant.observacoes || '') : '') + '</textarea>'
+    + '<div class="erro" id="f-erro"></div>';
+  app.innerHTML = h;
+  document.getElementById('rodape').style.display = 'block';
+
+  var offs = app.querySelectorAll('.f-off');
+  for (var k = 0; k < offs.length; k++) offs[k].addEventListener('change', function(){
+    var card = this.closest('.item');
+    var inputs = card.querySelectorAll('input[type=text]');
+    for (var x = 0; x < inputs.length; x++) inputs[x].disabled = this.checked;
+    card.className = this.checked ? 'item off' : 'item';
+  });
+
+  document.getElementById('enviar').onclick = enviar;
+}
+
+function enviar(){
+  var nome = document.getElementById('f-nome').value.trim();
+  var erroEl = document.getElementById('f-erro');
+  if (!nome) { erroEl.textContent = 'Preencha seu nome ou o nome da empresa.'; window.scrollTo(0, 0); return; }
+  var cards = app.querySelectorAll('.item');
+  var itens = []; var algum = false;
+  for (var i = 0; i < cards.length; i++) {
+    var c = cards[i];
+    var off = c.querySelector('.f-off').checked;
+    var preco = off ? null : parsePreco(c.querySelector('.f-preco').value);
+    if (preco != null) algum = true;
+    itens.push({
+      item_id: c.getAttribute('data-item'),
+      preco_unitario: preco,
+      prazo_entrega: off ? null : (c.querySelector('.f-prazo').value.trim() || null),
+      qtd_minima: off ? null : (c.querySelector('.f-qtd').value.trim() || null),
+      obs: off ? 'não tenho este item' : null
+    });
+  }
+  if (!algum) { erroEl.textContent = 'Preencha o preço de pelo menos um item (ou avise o comprador que não trabalha com eles).'; return; }
+  erroEl.textContent = '';
+  var bt = document.getElementById('enviar');
+  bt.disabled = true; bt.textContent = 'Enviando…';
+  fetch(BASE + '/api/f/' + TOKEN, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      fornecedor: nome,
+      condicao_pagamento: document.getElementById('f-pag').value.trim() || null,
+      observacoes: document.getElementById('f-obs').value.trim() || null,
+      itens: itens
+    })
+  }).then(function(r){ return r.json(); }).then(function(j){
+    if (j.erro) { erroEl.textContent = j.erro; bt.disabled = false; bt.textContent = 'Enviar cotação'; return; }
+    telaFim('&#10003;', 'Cotação enviada', 'Obrigado, ' + esc(nome) + '! O comprador já recebeu seus preços. Se precisar corrigir algo, abra este mesmo link de novo.');
+  }).catch(function(){ erroEl.textContent = 'Falha ao enviar. Tente de novo.'; bt.disabled = false; bt.textContent = 'Enviar cotação'; });
+}
+
+function telaFim(icone, titulo, texto){
+  document.getElementById('rodape').style.display = 'none';
+  app.innerHTML = '<div class="fim"><div class="ok">' + icone + '</div><h1>' + esc(titulo) + '</h1><p>' + texto + '</p></div>';
+}
+</script>
+</body>
+</html>

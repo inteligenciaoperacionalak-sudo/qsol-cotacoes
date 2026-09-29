@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cotações de compras</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#1B2A24; --papel:#F5F6F2; --branco:#FFFFFF;
+  --verde:#1E7A4C; --verde-escuro:#155C39;
+  --ambar:#F2B41B; --ambar-claro:#FBF1D3;
+  --linha:#D8DDD4; --cinza:#68716B; --verm:#B5432E; --verm-claro:#F7E4DF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Archivo',system-ui,sans-serif;background:var(--papel);color:var(--tinta);font-size:16px;line-height:1.45}
+header{background:var(--tinta);color:#fff;padding:14px 18px;display:flex;align-items:baseline;gap:10px}
+header h1{font-size:20px;font-weight:800;letter-spacing:-.02em}
+header .emp{color:#B8C4BC;font-size:13px;font-weight:500}
+main{max-width:760px;margin:0 auto;padding:18px 14px 90px}
+h2{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:6px 0 14px}
+h3{font-size:15px;font-weight:700;margin:22px 0 8px}
+button{font-family:inherit;font-size:15px;font-weight:600;border:none;border-radius:8px;cursor:pointer;padding:11px 16px}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--verde);outline-offset:1px}
+.bt-verde{background:var(--verde);color:#fff}
+.bt-verde:active{background:var(--verde-escuro)}
+.bt-borda{background:var(--branco);border:1px solid var(--linha);color:var(--tinta)}
+.bt-mini{padding:7px 12px;font-size:13px;border-radius:6px}
+.bt-verm{background:var(--verm-claro);color:var(--verm)}
+input[type=text],input[type=password],textarea{width:100%;font-family:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--linha);border-radius:8px;background:var(--branco);color:var(--tinta)}
+textarea{min-height:120px;resize:vertical}
+label{display:block;font-size:13px;font-weight:600;color:var(--cinza);margin:14px 0 5px}
+.caixa{background:var(--branco);border:1px solid var(--linha);border-radius:10px;padding:16px}
+.linha-cot{display:flex;align-items:center;gap:12px;padding:14px 4px;border-top:1px solid var(--linha);cursor:pointer}
+.linha-cot:last-of-type{border-bottom:1px solid var(--linha)}
+.linha-cot .tit{font-weight:700;flex:1}
+.linha-cot .sub{font-size:13px;color:var(--cinza)}
+.pill{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px}
+.pill.aberta{background:#E2F0E8;color:var(--verde-escuro)}
+.pill.fechada{background:#ECECEA;color:var(--cinza)}
+.msg{font-size:14px;color:var(--cinza);margin:10px 0}
+.erro{color:var(--verm);font-size:14px;margin:10px 0}
+.topo-det{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.voltar{background:none;border:none;color:var(--verde);font-weight:700;padding:6px 0;font-size:15px;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.chip{background:var(--branco);border:1px solid var(--linha);border-radius:6px;padding:5px 10px;font-size:13px;font-weight:500}
+.convite{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--linha);flex-wrap:wrap}
+.convite .nome{font-weight:600;flex:1;min-width:120px}
+.convite .resp-ok{font-size:12px;font-weight:700;color:var(--verde-escuro)}
+.convite .resp-nao{font-size:12px;color:var(--cinza)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{font-size:12px;font-weight:600;color:var(--cinza);text-align:left;padding:7px 8px;border-bottom:1px solid var(--linha)}
+td{font-size:14px;padding:9px 8px;border-bottom:1px solid var(--linha);vertical-align:top}
+td.preco{font-weight:700;white-space:nowrap}
+tr.melhor{background:var(--ambar-claro)}
+tr.melhor td.preco::after{content:" melhor";font-size:11px;font-weight:700;color:#8A6410}
+.item-comp{margin:16px 0}
+.item-comp .nome-item{font-weight:800;font-size:16px;margin-bottom:6px}
+.sem-resp{font-size:14px;color:var(--cinza)}
+.acoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:26px}
+.link-box{display:flex;gap:8px;align-items:center;background:var(--papel);border:1px dashed var(--linha);border-radius:8px;padding:10px;margin-top:10px;flex-wrap:wrap}
+.link-box code{font-size:12px;word-break:break-all;flex:1;min-width:150px}
+.centro{max-width:380px;margin:60px auto;padding:0 16px}
+.centro h2{margin-bottom:4px}
+.centro p{font-size:14px;color:var(--cinza);margin-bottom:14px}
+.centro button{width:100%;margin-top:16px}
+details{margin-top:10px}
+summary{font-size:14px;font-weight:600;color:var(--verde);cursor:pointer}
+.cklist{margin:10px 0 0;display:flex;flex-direction:column;gap:8px}
+.cklist label{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500;color:var(--tinta);margin:0}
+.cklist input{width:18px;height:18px}
+.venc{padding:12px 0;border-top:1px solid var(--linha)}
+.venc:first-of-type{border-top:none;padding-top:0}
+.venc-nome{font-weight:800;font-size:15px}
+.venc-n{font-weight:600;font-size:13px;color:var(--cinza);margin-left:6px}
+.venc .chips{margin:8px 0 0}
+.chip-win{background:var(--ambar-claro);border-color:#E5D194}
+.venc-tab{margin-top:8px;max-width:520px}
+.venc-tab th,.venc-tab td{padding:6px 8px}
+.venc-tab tr:last-child td{border-bottom:none}
+.td-preco{text-align:right;white-space:nowrap}
+.empate{font-size:11px;font-weight:700;color:#8A6410;background:var(--ambar-claro);padding:1px 6px;border-radius:99px;margin-left:4px}
+.rel-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.rel-topo h3{margin-bottom:8px}
+.rel-acoes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.so-print{display:none}
+@media print{
+  body.so-rel header,body.so-rel #app>*:not(#relatorio),.no-print,.toast{display:none!important}
+  .so-print{display:block}
+  body{background:#fff;font-size:12px}
+  main{max-width:none;padding:0}
+  .caixa{border-color:#bbb}
+  .venc{break-inside:avoid}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+.flt{position:fixed;right:16px;bottom:16px;box-shadow:0 4px 14px rgba(27,42,36,.25);font-size:16px;padding:14px 20px;border-radius:99px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--tinta);color:#fff;font-size:14px;font-weight:600;padding:10px 18px;border-radius:8px;opacity:0;transition:opacity .2s}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<header><h1>Cotações</h1><span class="emp" id="emp" style="flex:1"></span><a href="../qsol-compras/" style="color:var(--ambar);font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap">Central &rarr;</a></header>
+<main id="app"><p class="msg">Carregando…</p></main>
+<div class="toast" id="toast"></div>
+<script>
+var API = 'https://eklguenkzbzkhwdvuogx.supabase.co/functions/v1/app/api';
+var pin = localStorage.getItem('cot_pin') || '';
+var empresa = '';
+var app = document.getElementById('app');
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(t){ var el = document.getElementById('toast'); el.textContent = t; el.className = 'toast on'; setTimeout(function(){ el.className = 'toast'; }, 2200); }
+function moeda(v){ return new Intl.NumberFormat('pt-BR', {style:'currency', currency:'BRL'}).format(v); }
+function dataBr(s){ var d = new Date(s); return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}); }
+
+function api(caminho, opts){
+  opts = opts || {};
+  opts.headers = Object.assign({'Content-Type':'application/json','x-pin':pin}, opts.headers || {});
+  return fetch(API + caminho, opts).then(function(r){
+    if (r.status === 401) { telaLogin('PIN incorreto ou sessão expirada.'); throw new Error('401'); }
+    return r.json().then(function(j){ if (!r.ok) { throw new Error(j.erro || 'Erro'); } return j; });
+  });
+}
+
+function boot(){
+  fetch(API + '/estado').then(function(r){ return r.json(); }).then(function(e){
+    empresa = e.empresa || '';
+    document.getElementById('emp').textContent = empresa;
+    if (!e.temPin) { telaSetup(); }
+    else if (!pin) { telaLogin(''); }
+    else {
+      var m = location.hash.match(/^#c=(.+)$/);
+      if (m) detalhe(m[1]); else home();
+    }
+  }).catch(function(){ app.innerHTML = '<p class="erro">Não consegui carregar. Verifique a conexão e recarregue a página.</p>'; });
+}
+
+function telaSetup(){
+  app.innerHTML = '<div class="centro"><h2>Primeiro acesso</h2>'
+    + '<p>Crie um PIN de acesso ao painel. Só quem tiver o PIN vê as cotações e os preços — os fornecedores nunca precisam dele.</p>'
+    + '<label>PIN (4 a 8 dígitos)</label><input type="password" id="s-pin" inputmode="numeric" autocomplete="new-password">'
+    + '<label>Nome da empresa (aparece para o fornecedor)</label><input type="text" id="s-emp" placeholder="ex.: Restaurante Maré Alta">'
+    + '<div class="erro" id="s-erro"></div>'
+    + '<button class="bt-verde" id="s-ok">Criar PIN e entrar</button></div>';
+  document.getElementById('s-ok').onclick = function(){
+    var p = document.getElementById('s-pin').value.trim();
+    var em = document.getElementById('s-emp').value.trim();
+    if (p.length < 4) { document.getElementById('s-erro').textContent = 'O PIN precisa de pelo menos 4 dígitos.'; return; }
+    fetch(API + '/setup', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({pin:p, empresa:em})})
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if (j.erro) { document.getElementById('s-erro').textContent = j.erro; return; }
+        pin = p; localStorage.setItem('cot_pin', p); empresa = em;
+        document.getElementById('emp').textContent = em;
+        irHome();
+      });
+  };
+}
+
+function telaLogin(msg){
+  app.innerHTML = '<div class="centro"><h2>Entrar no painel</h2>'
+    + '<p>Digite o PIN de acesso.</p>'
+    + '<input type="password" id="l-pin" inputmode="numeric" autocomplete="current-password">'
+    + '<div class="erro">' + esc(msg) + '</div>'
+    + '<button class="bt-verde" id="l-ok">Entrar</button></div>';
+  var entrar = function(){
+    pin = document.getElementById('l-pin').value.trim();
+    api('/admin/cotacoes').then(function(){ localStorage.setItem('cot_pin', pin); irHome(); }).catch(function(){});
+  };
+  document.getElementById('l-ok').onclick = entrar;
+  document.getElementById('l-pin').addEventListener('keydown', function(ev){ if (ev.key === 'Enter') entrar(); });
+}
+
+function irHome(){ location.hash = ''; home(); }
+
+function home(){
+  app.innerHTML = '<p class="msg">Carregando…</p>';
+  api('/admin/cotacoes').then(function(lista){
+    var h = '<h2>Minhas cotações</h2>';
+    if (!lista.length) {
+      h += '<p class="msg">Nenhuma cotação ainda. Crie a primeira: liste os produtos que quer comprar e mande o link pros fornecedores.</p>';
+    }
+    for (var i = 0; i < lista.length; i++) {
+      var c = lista[i];
+      h += '<div class="linha-cot" data-id="' + c.id + '">'
+        + '<div style="flex:1"><div class="tit">' + esc(c.titulo) + '</div>'
+        + '<div class="sub">' + dataBr(c.criada_em) + ' · ' + c.n_itens + ' itens · ' + c.n_respostas + ' resposta' + (c.n_respostas === 1 ? '' : 's') + '</div></div>'
+        + '<span class="pill ' + c.status + '">' + (c.status === 'aberta' ? 'Aberta' : 'Fechada') + '</span></div>';
+    }
+    h += '<button class="bt-verde flt" id="bt-nova">+ Nova cotação</button>';
+    app.innerHTML = h;
+    document.getElementById('bt-nova').onclick = telaNova;
+    var rows = app.querySelectorAll('.linha-cot');
+    for (var j = 0; j < rows.length; j++) {
+      rows[j].onclick = function(){ location.hash = 'c=' + this.getAttribute('data-id'); };
+    }
+  }).catch(function(){});
+}
+
+function telaNova(){
+  var hoje = new Date();
+  var sug = 'Cotação ' + String(hoje.getDate()).padStart(2,'0') + '-' + String(hoje.getMonth()+1).padStart(2,'0');
+  app.innerHTML = '<button class="voltar" id="bt-volta">&larr; Voltar</button><h2>Nova cotação</h2>'
+    + '<label>Nome da cotação</label><input type="text" id="n-tit" value="' + esc(sug) + '">'
+    + '<label>Itens — um por linha (pode incluir quantidade, marca, tamanho…)</label>'
+    + '<textarea id="n-itens" placeholder="Coca Cola lata (10 cx)&#10;Amstel lata (5 cx)"></textarea>'
+    + '<div class="erro" id="n-erro"></div>'
+    + '<div class="acoes"><button class="bt-verde" id="n-ok">Criar cotação</button></div>';
+  document.getElementById('bt-volta').onclick = irHome;
+  document.getElementById('n-ok').onclick = function(){
+    var tit = document.getElementById('n-tit').value.trim() || sug;
+    var linhas = document.getElementById('n-itens').value.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+    if (!linhas.length) { document.getElementById('n-erro').textContent = 'Liste pelo menos um item.'; return; }
+    api('/admin/cotacoes', {method:'POST', body: JSON.stringify({titulo:tit, itens:linhas})})
+      .then(function(c){ location.hash = 'c=' + c.id; })
+      .catch(function(e){ document.getElementById('n-erro').textContent = e.message; });
+  };
+}
+
+function detalhe(id){
+  app.innerHTML = '<p class="msg">Carregando…</p>';
+  api('/admin/cotacoes/' + id).then(function(d){
+    var c = d.cotacao;
+    var h = '<button class="voltar" id="bt-volta">&larr; Voltar</button>'
+      + '<div class="topo-det"><h2 style="margin:0">' + esc(c.titulo) + '</h2>'
+      + '<span class="pill ' + c.status + '">' + (c.status === 'aberta' ? 'Aberta' : 'Fechada') + '</span></div>'
+      + '<div class="chips">';
+    for (var i = 0; i < d.itens.length; i++) h += '<span class="chip">' + esc(d.itens[i].nome) + '</span>';
+    h += '</div>';
+
+    // ----- links de fornecedores
+    h += '<h3>Links para fornecedores</h3><div class="caixa">'
+      + '<label style="margin-top:0">Nome do fornecedor (opcional — deixe vazio pra um link geral)</label>'
+      + '<input type="text" id="cv-nome" placeholder="ex.: Distribuidora Sol">'
+      + '<details><summary>Escolher quais itens esse fornecedor cota</summary><div class="cklist" id="cv-itens">';
+    for (var i2 = 0; i2 < d.itens.length; i2++) {
+      h += '<label><input type="checkbox" checked value="' + d.itens[i2].id + '"> ' + esc(d.itens[i2].nome) + '</label>';
+    }
+    h += '</div></details>'
+      + '<div class="acoes" style="margin-top:14px"><button class="bt-verde bt-mini" id="cv-ok">Gerar link</button></div>'
+      + '<div id="cv-novo"></div><div id="cv-lista">';
+    for (var k = 0; k < d.convites.length; k++) {
+      var cv = d.convites[k];
+      var respondeu = d.respostas.some(function(r){ return r.convite_token === cv.token; });
+      h += '<div class="convite"><span class="nome">' + esc(cv.fornecedor || 'Link geral') + '</span>'
+        + (respondeu ? '<span class="resp-ok">respondeu</span>' : '<span class="resp-nao">aguardando</span>')
+        + '<button class="bt-borda bt-mini" data-cp="' + cv.token + '">Copiar link</button>'
+        + '<button class="bt-borda bt-mini" data-wa="' + cv.token + '">WhatsApp</button></div>';
+    }
+    h += '</div></div>';
+
+    // ----- resumo: quem ganhou cada item (com o preço vencedor)
+    REL = null;
+    if (d.respostas.length) {
+      var venc = {}; var respondentes = {}; var totalDisputados = 0;
+      for (var v1 = 0; v1 < d.respostas.length; v1++) respondentes[d.respostas[v1].fornecedor] = true;
+      for (var v2 = 0; v2 < d.itens.length; v2++) {
+        var itV = d.itens[v2];
+        var concorrentes = [];
+        for (var v3 = 0; v3 < d.respostas.length; v3++) {
+          var rV = d.respostas[v3];
+          for (var v4 = 0; v4 < rV.itens.length; v4++) {
+            if (rV.itens[v4].item_id === itV.id && rV.itens[v4].preco_unitario != null) {
+              concorrentes.push({f: rV.fornecedor, p: rV.itens[v4].preco_unitario});
+            }
+          }
+        }
+        if (!concorrentes.length) continue;
+        totalDisputados++;
+        var menorP = null;
+        for (var v5 = 0; v5 < concorrentes.length; v5++) if (menorP == null || concorrentes[v5].p < menorP) menorP = concorrentes[v5].p;
+        var ganhadores = [];
+        for (var v6 = 0; v6 < concorrentes.length; v6++) if (concorrentes[v6].p === menorP) ganhadores.push(concorrentes[v6].f);
+        for (var v7 = 0; v7 < ganhadores.length; v7++) {
+          if (!venc[ganhadores[v7]]) venc[ganhadores[v7]] = [];
+          venc[ganhadores[v7]].push({nome: itV.nome, preco: menorP, empate: ganhadores.length > 1});
+        }
+      }
+      var nomesF = [];
+      for (var nf in respondentes) nomesF.push(nf);
+      nomesF.sort(function(a, b){ return (venc[b] ? venc[b].length : 0) - (venc[a] ? venc[a].length : 0) || a.localeCompare(b); });
+      REL = { titulo: c.titulo, fornecedores: [] };
+      h += '<div id="relatorio"><div class="so-print"><h2>Relatório de vencedores da cotação</h2><p class="msg">' + esc(c.titulo) + (empresa ? ' · ' + esc(empresa) : '') + ' · gerado em ' + new Date().toLocaleDateString('pt-BR') + '</p></div>'
+        + '<div class="rel-topo"><h3>Quem ganhou cada item</h3>'
+        + '<div class="rel-acoes no-print"><button class="bt-borda bt-mini" id="bt-pdf">Imprimir / salvar PDF</button><button class="bt-borda bt-mini" id="bt-xlsx">Baixar planilha (Excel)</button></div></div>'
+        + '<div class="caixa">';
+      for (var v8 = 0; v8 < nomesF.length; v8++) {
+        var nomeF = nomesF[v8];
+        var ganhos = venc[nomeF] || [];
+        REL.fornecedores.push({ nome: nomeF, itens: ganhos });
+        h += '<div class="venc"><div><span class="venc-nome">' + esc(nomeF) + '</span>'
+          + '<span class="venc-n">ganhou ' + ganhos.length + ' de ' + totalDisputados + ' ' + (totalDisputados === 1 ? 'item' : 'itens') + '</span></div>';
+        if (ganhos.length) {
+          h += '<table class="venc-tab"><tr><th>Ganhou nos itens</th><th class="td-preco">Preço un.</th></tr>';
+          for (var v9 = 0; v9 < ganhos.length; v9++) {
+            h += '<tr><td>' + esc(ganhos[v9].nome) + (ganhos[v9].empate ? ' <span class="empate">empate</span>' : '') + '</td>'
+              + '<td class="preco td-preco">' + moeda(ganhos[v9].preco) + '</td></tr>';
+          }
+          h += '</table>';
+        } else {
+          h += '<p class="sem-resp" style="margin-top:6px">Não teve o menor preço em nenhum item.</p>';
+        }
+        h += '</div>';
+      }
+      h += '<p class="msg so-print" style="margin-top:14px">Preço unitário do fornecedor vencedor em cada item. Em caso de empate, o item aparece nos dois fornecedores.</p>';
+      h += '</div></div>';
+    }
+
+    h += '<h3>Comparativo de preços</h3>';
+    if (!d.respostas.length) {
+      h += '<p class="sem-resp">Nenhuma resposta ainda. Assim que um fornecedor preencher o formulário, os preços aparecem aqui.</p>';
+    } else {
+      h += '<div class="caixa">';
+      for (var m = 0; m < d.itens.length; m++) {
+        var it = d.itens[m];
+        var linhas = [];
+        for (var n = 0; n < d.respostas.length; n++) {
+          var r = d.respostas[n];
+          var ri = null;
+          for (var q = 0; q < r.itens.length; q++) if (r.itens[q].item_id === it.id) ri = r.itens[q];
+          if (ri) linhas.push({f: r.fornecedor, pg: r.condicao_pagamento, ri: ri});
+        }
+        h += '<div class="item-comp"><div class="nome-item">' + esc(it.nome) + '</div>';
+        if (!linhas.length) { h += '<p class="sem-resp">Sem respostas para este item.</p></div>'; continue; }
+        linhas.sort(function(a, b){
+          var pa = a.ri.preco_unitario, pb = b.ri.preco_unitario;
+          if (pa == null) return 1; if (pb == null) return -1; return pa - pb;
+        });
+        var melhor = linhas[0].ri.preco_unitario != null ? linhas[0].ri.preco_unitario : null;
+        h += '<table><tr><th>Fornecedor</th><th>Preço un.</th><th>Prazo</th><th>Qtd mín.</th><th>Pagamento</th></tr>';
+        for (var p2 = 0; p2 < linhas.length; p2++) {
+          var L = linhas[p2];
+          var eMelhor = melhor != null && L.ri.preco_unitario === melhor;
+          h += '<tr' + (eMelhor ? ' class="melhor"' : '') + '><td>' + esc(L.f) + '</td>'
+            + '<td class="preco">' + (L.ri.preco_unitario != null ? moeda(L.ri.preco_unitario) : '<span class="sem-resp">' + esc(L.ri.obs || 'não cotou') + '</span>') + '</td>'
+            + '<td>' + esc(L.ri.prazo_entrega || '—') + '</td>'
+            + '<td>' + esc(L.ri.qtd_minima || '—') + '</td>'
+            + '<td>' + esc(L.pg || '—') + '</td></tr>';
+        }
+        h += '</table></div>';
+      }
+      // observações gerais dos fornecedores
+      var obsG = d.respostas.filter(function(r){ return r.observacoes; });
+      if (obsG.length) {
+        h += '<h3 style="margin-top:8px">Observações dos fornecedores</h3>';
+        for (var o = 0; o < obsG.length; o++) h += '<p class="msg"><strong>' + esc(obsG[o].fornecedor) + ':</strong> ' + esc(obsG[o].observacoes) + '</p>';
+      }
+      h += '</div>';
+    }
+
+    // ----- ações
+    h += '<div class="acoes">';
+    if (c.status === 'aberta') h += '<button class="bt-borda" id="bt-fechar">Fechar cotação</button>';
+    else h += '<button class="bt-borda" id="bt-reabrir">Reabrir cotação</button>';
+    h += '<button class="bt-verm" id="bt-excluir">Excluir</button></div>';
+
+    app.innerHTML = h;
+    document.getElementById('bt-volta').onclick = irHome;
+
+    document.getElementById('cv-ok').onclick = function(){
+      var nome = document.getElementById('cv-nome').value.trim();
+      var cks = document.querySelectorAll('#cv-itens input');
+      var ids = []; var todos = true;
+      for (var x = 0; x < cks.length; x++) { if (cks[x].checked) ids.push(cks[x].value); else todos = false; }
+      if (!ids.length) { toast('Escolha pelo menos um item.'); return; }
+      api('/admin/cotacoes/' + id + '/convites', {method:'POST', body: JSON.stringify({fornecedor:nome, item_ids: todos ? null : ids})})
+        .then(function(cv2){
+          var url2 = linkDe(cv2.token);
+          document.getElementById('cv-novo').innerHTML = '<div class="link-box"><code>' + esc(url2) + '</code>'
+            + '<button class="bt-borda bt-mini" data-cp="' + cv2.token + '">Copiar link</button>'
+            + '<button class="bt-borda bt-mini" data-wa="' + cv2.token + '">WhatsApp</button></div>';
+          ligarBotoes(id);
+          toast('Link criado.');
+        }).catch(function(e){ toast(e.message); });
+    };
+
+    var bPdf = document.getElementById('bt-pdf');
+    if (bPdf) bPdf.onclick = function(){
+      document.body.classList.add('so-rel');
+      var tira = function(){ document.body.classList.remove('so-rel'); window.removeEventListener('afterprint', tira); };
+      window.addEventListener('afterprint', tira);
+      window.print();
+      setTimeout(tira, 2000);
+    };
+    var bXls = document.getElementById('bt-xlsx');
+    if (bXls) bXls.onclick = function(){ baixarPlanilha(); };
+
+    if (document.getElementById('bt-fechar')) document.getElementById('bt-fechar').onclick = function(){ mudarStatus(id, 'fechada'); };
+    if (document.getElementById('bt-reabrir')) document.getElementById('bt-reabrir').onclick = function(){ mudarStatus(id, 'aberta'); };
+    document.getElementById('bt-excluir').onclick = function(){
+      if (confirm('Excluir esta cotação e todas as respostas? Não dá pra desfazer.')) {
+        api('/admin/cotacoes/' + id, {method:'DELETE'}).then(function(){ toast('Cotação excluída.'); irHome(); }).catch(function(e){ toast(e.message); });
+      }
+    };
+    ligarBotoes(id);
+  }).catch(function(){});
+}
+
+function linkDe(token){ return new URL('f.html?t=' + token, location.href).href; }
+
+// ================================ planilha Excel (.xlsx) sem biblioteca ===
+var REL = null; // dados do relatório de vencedores da cotação aberta
+function xmlEsc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function colLetra(n){ var s = ''; while (n > 0) { var m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = (n - m - 1) / 26; } return s; }
+
+function baixarPlanilha(){
+  if (!REL) { toast('Nenhuma resposta ainda.'); return; }
+  // estilos: 0 normal · 1 negrito · 2 moeda · 3 moeda negrito · 4 quantidade (amarelo, pra digitar) · 5 título
+  var rows = [];
+  var r = 1;
+  var linha = function(cells){ rows.push('<row r="' + r + '">' + cells.join('') + '</row>'); r++; };
+  var cTxt = function(col, v, st){ return '<c r="' + colLetra(col) + r + '" t="inlineStr"' + (st ? ' s="' + st + '"' : '') + '><is><t xml:space="preserve">' + xmlEsc(v) + '</t></is></c>'; };
+  var cNum = function(col, v, st){ return '<c r="' + colLetra(col) + r + '"' + (st ? ' s="' + st + '"' : '') + (v == null ? '/>' : '><v>' + v + '</v></c>'); };
+  var cFor = function(col, f, st){ return '<c r="' + colLetra(col) + r + '"' + (st ? ' s="' + st + '"' : '') + '><f>' + xmlEsc(f) + '</f></c>'; };
+
+  linha([cTxt(1, 'Vencedores da cotação: ' + REL.titulo + (empresa ? ' · ' + empresa : ''), 5)]);
+  linha([cTxt(1, 'Gerado em ' + new Date().toLocaleDateString('pt-BR') + '. Preencha a coluna Quantidade; o total calcula sozinho.')]);
+  linha([]);
+  linha([cTxt(1, 'Fornecedor', 1), cTxt(2, 'Item', 1), cTxt(3, 'Preço un. (R$)', 1), cTxt(4, 'Quantidade', 1), cTxt(5, 'Total (R$)', 1)]);
+  var subtotais = [];
+  for (var i = 0; i < REL.fornecedores.length; i++) {
+    var f = REL.fornecedores[i];
+    if (!f.itens.length) continue;
+    var ini = r;
+    for (var j = 0; j < f.itens.length; j++) {
+      var it = f.itens[j];
+      linha([cTxt(1, f.nome), cTxt(2, it.nome + (it.empate ? ' (empate)' : '')), cNum(3, it.preco, 2), cNum(4, null, 4), cFor(5, 'C' + r + '*D' + r, 2)]);
+    }
+    subtotais.push('E' + r);
+    linha([cTxt(1, 'Subtotal ' + f.nome, 1), cTxt(2, ''), cTxt(3, ''), cFor(4, 'SUM(D' + ini + ':D' + (r - 1) + ')', 1), cFor(5, 'SUM(E' + ini + ':E' + (r - 1) + ')', 3)]);
+    linha([]);
+  }
+  linha([cTxt(1, 'TOTAL GERAL', 1), cTxt(2, ''), cTxt(3, ''), cTxt(4, ''), cFor(5, subtotais.length ? subtotais.join('+') : '0', 3)]);
+
+  var sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    + '<cols><col min="1" max="1" width="28" customWidth="1"/><col min="2" max="2" width="38" customWidth="1"/><col min="3" max="5" width="16" customWidth="1"/></cols>'
+    + '<sheetData>' + rows.join('') + '</sheetData></worksheet>';
+  var styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    + '<numFmts count="1"><numFmt numFmtId="164" formatCode="&quot;R$&quot;\\ #,##0.00"/></numFmts>'
+    + '<fonts count="3"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="14"/><name val="Calibri"/></font></fonts>'
+    + '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFF2CC"/></patternFill></fill></fills>'
+    + '<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFBFBFBF"/></left><right style="thin"><color rgb="FFBFBFBF"/></right><top style="thin"><color rgb="FFBFBFBF"/></top><bottom style="thin"><color rgb="FFBFBFBF"/></bottom><diagonal/></border></borders>'
+    + '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+    + '<cellXfs count="6">'
+    + '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+    + '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+    + '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+    + '<xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
+    + '<xf numFmtId="0" fontId="0" fillId="2" borderId="1" xfId="0" applyFill="1" applyBorder="1"/>'
+    + '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+    + '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+  var arquivos = [
+    ['[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'],
+    ['_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+    ['xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Vencedores" sheetId="1" r:id="rId1"/></sheets><calcPr fullCalcOnLoad="1"/></workbook>'],
+    ['xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'],
+    ['xl/worksheets/sheet1.xml', sheet],
+    ['xl/styles.xml', styles]
+  ];
+  var blob = new Blob([zipStored(arquivos)], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'vencedores_' + REL.titulo.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w-]+/g, '_') + '.xlsx';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000);
+}
+
+// ZIP sem compressão (o Excel aceita), só o necessário pra montar o .xlsx
+var CRC_TAB = (function(){ var t = []; for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[n] = c >>> 0; } return t; })();
+function crc32(b){ var c = 0xFFFFFFFF; for (var i = 0; i < b.length; i++) c = CRC_TAB[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zipStored(arquivos){
+  var enc = new TextEncoder(), partes = [], central = [], offset = 0;
+  var u16 = function(v){ return [v & 255, (v >>> 8) & 255]; };
+  var u32 = function(v){ return [v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255]; };
+  var d = new Date(), dosT = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1), dosD = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  for (var i = 0; i < arquivos.length; i++) {
+    var nome = enc.encode(arquivos[i][0]), dados = enc.encode(arquivos[i][1]), crc = crc32(dados);
+    var loc = new Uint8Array([].concat(u32(0x04034b50), u16(20), u16(0x0800), u16(0), u16(dosT), u16(dosD), u32(crc), u32(dados.length), u32(dados.length), u16(nome.length), u16(0)));
+    partes.push(loc, nome, dados);
+    central.push(new Uint8Array([].concat(u32(0x02014b50), u16(20), u16(20), u16(0x0800), u16(0), u16(dosT), u16(dosD), u32(crc), u32(dados.length), u32(dados.length), u16(nome.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(offset))), nome);
+    offset += loc.length + nome.length + dados.length;
+  }
+  var tamCentral = 0;
+  for (var j = 0; j < central.length; j++) tamCentral += central[j].length;
+  var fim = new Uint8Array([].concat(u32(0x06054b50), u16(0), u16(0), u16(arquivos.length), u16(arquivos.length), u32(tamCentral), u32(offset), u16(0)));
+  var todos = partes.concat(central, [fim]), total = 0;
+  for (var k = 0; k < todos.length; k++) total += todos[k].length;
+  var out = new Uint8Array(total), pos = 0;
+  for (var m = 0; m < todos.length; m++) { out.set(todos[m], pos); pos += todos[m].length; }
+  return out;
+}
+
+function ligarBotoes(id){
+  var cps = app.querySelectorAll('[data-cp]');
+  for (var i = 0; i < cps.length; i++) cps[i].onclick = function(){
+    var u = linkDe(this.getAttribute('data-cp'));
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(function(){ toast('Link copiado.'); });
+    else { prompt('Copie o link:', u); }
+  };
+  var was = app.querySelectorAll('[data-wa]');
+  for (var j = 0; j < was.length; j++) was[j].onclick = function(){
+    var u = linkDe(this.getAttribute('data-wa'));
+    var txt = 'Olá! Pode preencher esta cotação de preços' + (empresa ? ' para ' + empresa : '') + '? É rapidinho: ' + u;
+    window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+  };
+}
+
+function mudarStatus(id, st){
+  api('/admin/cotacoes/' + id + '/status', {method:'POST', body: JSON.stringify({status:st})})
+    .then(function(){ detalhe(id); }).catch(function(e){ toast(e.message); });
+}
+
+window.addEventListener('hashchange', function(){
+  var m = location.hash.match(/^#c=(.+)$/);
+  if (m) detalhe(m[1]); else if (pin) home();
+});
+
+boot();
+</script>
+</body>
+</html>
